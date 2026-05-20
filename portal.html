@@ -160,7 +160,12 @@ async function initMsal() {
 async function signIn() {
   setStatus('info', '<span class="spinner"></span> Redirecting to Microsoft login…');
   document.getElementById('loginBtn').disabled = true;
-  try { await msalInstance.loginRedirect(loginRequest); }
+  try {
+    await msalInstance.loginRedirect({
+      ...loginRequest,
+      prompt: 'select_account'
+    });
+  }
   catch (e) { setStatus('error', 'Login failed. Please try again.'); document.getElementById('loginBtn').disabled = false; }
 }
 async function handleAuthResponse(response) {
