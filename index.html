@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchemeGuard — Sectional Title Risk Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1A2B4A;
+    --navy-deep: #0F1E35;
+    --teal: #1D9E75;
+    --teal-light: #25C090;
+    --teal-pale: #E8F5F1;
+    --white: #FFFFFF;
+    --off: #F4F7F9;
+    --slate: #64748B;
+    --text: #1A2B4A;
+    --red: #C8373A;
+    --amber: #E07B2A;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ─── NAV ─────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(26, 43, 74, 0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+  .nav-brand span { color: var(--teal); }
+  .nav-links { display: flex; gap: 2.5rem; }
+  .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--teal-light); }
+  .nav-cta {
+    background: var(--teal);
+    color: var(--white) !important;
+    padding: 0.6rem 1.4rem;
+    border-radius: 4px;
+    font-weight: 600 !important;
+  }
+  .nav-cta:hover { background: var(--teal-light) !important; color: var(--white) !important; }
+
+  /* ─── HERO ───────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    background: var(--navy-deep);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 8rem 4rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(29,158,117,0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 40% at 20% 80%, rgba(29,158,117,0.06) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; opacity: 0.03;
+    background-image: linear-gradient(var(--teal) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--teal) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position: relative; max-width: 800px; }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(29,158,117,0.15);
+    border: 1px solid rgba(29,158,117,0.4);
+    color: var(--teal-light);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border-radius: 2px;
+    margin-bottom: 1.8rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 em { color: var(--teal); font-style: normal; }
+  .hero-sub {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    max-width: 580px;
+    margin-bottom: 3rem;
+    font-weight: 300;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-actions {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--teal);
+    color: var(--white);
+    padding: 0.9rem 2rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--teal-light); transform: translateY(-2px); }
+  .btn-ghost {
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.8);
+    padding: 0.9rem 2rem;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+    display: inline-block;
+  }
+  .btn-ghost:hover { border-color: var(--teal); color: var(--teal-light); }
+
+  /* Stat bar */
+  .stat-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(15, 30, 53, 0.9);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .stat-item {
+    padding: 1.8rem 2rem;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--teal);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .stat-lbl {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ─── SECTION BASE ────────────────────────────── */
+  section { padding: 6rem 4rem; }
+  .section-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.8rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    font-size: 1.05rem;
+    color: var(--slate);
+    line-height: 1.7;
+    max-width: 580px;
+    font-weight: 300;
+    margin-bottom: 3.5rem;
+  }
+
+  /* ─── PROBLEM ─────────────────────────────────── */
+  .problem { background: var(--off); }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    max-width: 1100px;
+  }
+  .problem-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 2rem;
+    border-left: 4px solid var(--teal);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .problem-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+  .problem-card h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.75rem;
+  }
+  .problem-card p { font-size: 0.92rem; color: var(--slate); line-height: 1.65; }
+
+  /* ─── FRAMEWORK ───────────────────────────────── */
+  .framework { background: var(--white); }
+  .framework-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    max-width: 1100px;
+    align-items: start;
+  }
+  .law-stack { display: flex; flex-direction: column; gap: 0.5rem; }
+  .law-block {
+    padding: 1.1rem 1.4rem;
+    border-radius: 6px;
+    position: relative;
+  }
+  .law-block h4 { font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 0.25rem; }
+  .law-block p { font-size: 0.82rem; color: rgba(255,255,255,0.65); }
+  .law-arrow { text-align: center; color: var(--teal); font-size: 1.2rem; line-height: 1; }
+  .pmr-box {
+    background: var(--teal-pale);
+    border: 1.5px solid var(--teal);
+    border-radius: 8px;
+    padding: 2rem;
+  }
+  .pmr-box h3 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 1.2rem; }
+  .pmr-item {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem; color: var(--text);
+  }
+  .pmr-check { color: var(--teal); font-weight: 700; flex-shrink: 0; margin-top: 0.05rem; }
+
+  /* ─── SCORING ─────────────────────────────────── */
+  .scoring { background: var(--navy); }
+  .scoring .section-title { color: var(--white); }
+  .scoring .section-sub { color: rgba(255,255,255,0.55); }
+  .scoring .section-tag { color: var(--teal-light); }
+  .score-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin-bottom: 2.5rem;
+  }
+  .score-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 1.8rem;
+  }
+  .score-card-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal-light);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .score-factor {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.88rem;
+  }
+  .score-factor:last-child { border-bottom: none; }
+  .score-factor-name { color: rgba(255,255,255,0.75); }
+  .score-weight {
+    background: rgba(29,158,117,0.2);
+    border: 1px solid rgba(29,158,117,0.3);
+    color: var(--teal-light);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+  }
+  .rating-strip {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+  }
+  .rating-pill {
+    padding: 0.5rem 1.2rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  /* ─── DATA ────────────────────────────────────── */
+  .data-section { background: var(--off); }
+  .data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    max-width: 1100px;
+    align-items: start;
+  }
+  .scheme-table { width: 100%; border-collapse: collapse; }
+  .scheme-table th {
+    background: var(--navy);
+    color: var(--white);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.8rem 1rem;
+    text-align: left;
+  }
+  .scheme-table td {
+    padding: 0.85rem 1rem;
+    font-size: 0.88rem;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    color: var(--text);
+  }
+  .scheme-table tr:hover td { background: var(--teal-pale); }
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .badge-critical { background: rgba(200,55,58,0.12); color: var(--red); }
+  .badge-high { background: rgba(224,123,42,0.12); color: var(--amber); }
+  .badge-moderate { background: rgba(212,160,23,0.12); color: #a07800; }
+  .finding-list { display: flex; flex-direction: column; gap: 1rem; }
+  .finding {
+    display: flex; gap: 1rem; align-items: flex-start;
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.2rem 1.4rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .finding-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: var(--teal-pale);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .finding-text h4 { font-size: 0.9rem; font-weight: 600; color: var(--navy); margin-bottom: 0.2rem; }
+  .finding-text p { font-size: 0.85rem; color: var(--slate); line-height: 1.5; }
+
+  /* ─── MARKET ──────────────────────────────────── */
+  .market { background: var(--white); }
+  .market-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    max-width: 1100px;
+  }
+  .market-card {
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    padding: 2rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .market-card:hover { border-color: var(--teal); box-shadow: 0 4px 24px rgba(29,158,117,0.1); }
+  .market-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+  .market-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.3rem; }
+  .market-size { font-size: 0.8rem; color: var(--teal); font-weight: 600; margin-bottom: 0.8rem; }
+  .market-card p { font-size: 0.88rem; color: var(--slate); line-height: 1.6; margin-bottom: 0.6rem; }
+  .market-offer { font-size: 0.88rem; color: var(--navy); font-weight: 500; }
+  .market-offer::before { content: '↳ '; color: var(--teal); }
+
+  /* ─── PRICING ─────────────────────────────────── */
+  .pricing { background: var(--off); }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 1100px;
+  }
+  .price-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 2rem;
+    border-top: 3px solid var(--teal);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    display: flex; flex-direction: column;
+  }
+  .price-tag {
+    display: inline-block;
+    background: var(--teal-pale);
+    color: var(--teal);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 3px;
+    margin-bottom: 1rem;
+    align-self: flex-start;
+  }
+  .price-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; }
+  .price-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--teal);
+    margin-bottom: 1rem;
+  }
+  .price-card p { font-size: 0.88rem; color: var(--slate); line-height: 1.6; flex: 1; }
+
+  /* ─── CTA ─────────────────────────────────────── */
+  .cta {
+    background: var(--navy);
+    text-align: center;
+    padding: 7rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(29,158,117,0.15) 0%, transparent 70%);
+  }
+  .cta-content { position: relative; max-width: 650px; margin: 0 auto; }
+  .cta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.2rem;
+  }
+  .cta p {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+  .cta-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    text-align: left;
+  }
+  .cta-step {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 1.4rem;
+  }
+  .cta-step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--teal);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .cta-step h4 { font-size: 0.9rem; font-weight: 600; color: var(--white); margin-bottom: 0.4rem; }
+  .cta-step p { font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+  /* ─── FOOTER ──────────────────────────────────── */
+  footer {
+    background: var(--navy-deep);
+    padding: 2rem 4rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  footer .brand {
+    font-family: 'Playfair Display', serif;
+    color: var(--white);
+    font-size: 1.1rem;
+  }
+  footer .brand span { color: var(--teal); }
+  footer p { font-size: 0.82rem; color: rgba(255,255,255,0.35); }
+
+  /* ─── ANIMATIONS ──────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0; transform: translateY(32px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── RESPONSIVE ──────────────────────────────── */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .hero { padding: 6rem 1.5rem 12rem; }
+    .problem-grid, .score-grid, .market-grid, .pricing-grid,
+    .framework-inner, .data-grid, .cta-steps { grid-template-columns: 1fr; }
+    .stat-bar { grid-template-columns: repeat(2, 1fr); }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Scheme<span>Guard</span></div>
+  <div class="nav-links">
+    <a href="#problem">The Problem</a>
+    <a href="#scoring">How It Works</a>
+    <a href="#data">Real Data</a>
+    <a href="#pricing">Services</a>
+    <a href="#contact" class="nav-cta">Get a Report</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Sectional Title Risk Intelligence</div>
+    <h1>Exposing <em>Hidden Risk</em><br>in South Africa's<br>Property Sector</h1>
+    <p class="hero-sub">Most sectional title schemes hold less than 10% of their required reserve fund. Banks, trustees and buyers carry this risk without knowing it. SchemeGuard makes it visible.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Request a Free Pilot Report</a>
+      <a href="#scoring" class="btn-ghost">See How It Works</a>
+    </div>
+  </div>
+  <div class="stat-bar">
+    <div class="stat-item">
+      <div class="stat-val">50,000+</div>
+      <div class="stat-lbl">Registered Schemes in SA</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">5–10%</div>
+      <div class="stat-lbl">Average Reserve Funding</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">R100B+</div>
+      <div class="stat-lbl">Estimated Unfunded Liability</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">0%</div>
+      <div class="stat-lbl">Schemes Fully Compliant</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="section-tag">The Problem</div>
+  <h2 class="section-title">A Systemic Crisis Hiding in Plain Sight</h2>
+  <p class="section-sub">South Africa's STSMA requires every body corporate to maintain a fully-funded 10-year Maintenance, Repair and Replacement Plan. Almost none do.</p>
+  <div class="problem-grid reveal">
+    <div class="problem-card">
+      <h3>⚠️ No Reserve Fund Planning</h3>
+      <p>Most schemes have no credible MRRP as required by PMR 22 of the STSMA Regulations. Where plans exist, they are typically backwards-engineered to justify the current (inadequate) reserve balance.</p>
+    </div>
+    <div class="problem-card">
+      <h3>💸 Critically Underfunded</h3>
+      <p>Our pilot analysis of 9 KwaZulu-Natal schemes shows average reserve fund adequacy of just 6.3% of the required target. Not a single scheme meets the standard.</p>
+    </div>
+    <div class="problem-card">
+      <h3>🏦 Banks Exposed</h3>
+      <p>Lenders hold bonds over units in schemes carrying R100B+ in unfunded maintenance liabilities — risk that appears nowhere in credit assessments or transfer documentation.</p>
+    </div>
+    <div class="problem-card">
+      <h3>⚖️ Trustees Personally Liable</h3>
+      <p>Trustees who fail to maintain the MRRP and fund the reserve adequately face personal liability, removal from office, and potential CSOS enforcement orders — most are unaware.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FRAMEWORK -->
+<section class="framework" id="framework">
+  <div class="section-tag">The Legal Framework</div>
+  <h2 class="section-title">Clear Obligations.<br>Widespread Non-Compliance.</h2>
+  <p class="section-sub">PMR 22 of the STSMA Regulations is unambiguous. Every scheme must have a written, AGM-approved 10-year plan covering six statutory elements.</p>
+  <div class="framework-inner reveal">
+    <div>
+      <div class="law-stack">
+        <div class="law-block" style="background:#2C3E6B">
+          <h4>Sectional Titles Act 95/1986</h4>
+          <p>Creates and registers sectional title schemes</p>
+        </div>
+        <div class="law-arrow">▼</div>
+        <div class="law-block" style="background:#1A2B4A">
+          <h4>STSMA 8/2011 — Section 3</h4>
+          <p>Mandates reserve fund establishment and maintenance</p>
+        </div>
+        <div class="law-arrow">▼</div>
+        <div class="law-block" style="background:#1D9E75">
+          <h4>PMR 22 — STSMA Regulations</h4>
+          <p>Requires detailed 10-year MRRP with 6 statutory elements</p>
+        </div>
+        <div class="law-arrow">▼</div>
+        <div class="law-block" style="background:#157A5A">
+          <h4>PMR 24(2)</h4>
+          <p>Reserve fund ring-fenced exclusively for MRRP implementation</p>
+        </div>
+      </div>
+    </div>
+    <div class="pmr-box">
+      <h3>PMR 22 Requires — Per Capital Item:</h3>
+      <div class="pmr-item"><span class="pmr-check">✓</span><span>List of all major capital items expected to require attention within 10 years</span></div>
+      <div class="pmr-item"><span class="pmr-check">✓</span><span>Current condition or state of repair of each item</span></div>
+      <div class="pmr-item"><span class="pmr-check">✓</span><span>Timing of when each item will need maintenance or replacement</span></div>
+      <div class="pmr-item"><span class="pmr-check">✓</span><span>Estimated cost of maintenance, repair and replacement</span></div>
+      <div class="pmr-item"><span class="pmr-check">✓</span><span>Expected life of items once maintained or replaced</span></div>
+      <div class="pmr-item"><span class="pmr-check">✓</span><span>Approved by body corporate at a general meeting annually</span></div>
+      <div class="pmr-item"><span class="pmr-check">✓</span><span>Trustee implementation report presented at every AGM</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SCORING -->
+<section class="scoring" id="scoring">
+  <div class="section-tag">How It Works</div>
+  <h2 class="section-title">Two Scores. One Overall Rating.</h2>
+  <p class="section-sub">SchemeGuard produces a composite risk score combining MRRP compliance and financial health into a single, actionable rating for every scheme.</p>
+  <div class="score-grid reveal">
+    <div class="score-card">
+      <div class="score-card-title">MRRP & Reserve Score — 50%</div>
+      <div class="score-factor">
+        <span class="score-factor-name">Reserve Fund Adequacy %</span>
+        <span class="score-weight">30%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Contribution % of Levies</span>
+        <span class="score-weight">25%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Scheme Age</span>
+        <span class="score-weight">20%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Maintenance Spend Trend</span>
+        <span class="score-weight">15%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Auditor Comment</span>
+        <span class="score-weight">10%</span>
+      </div>
+    </div>
+    <div class="score-card">
+      <div class="score-card-title">Financial Health Score — 50%</div>
+      <div class="score-factor">
+        <span class="score-factor-name">Surplus / Deficit Ratio</span>
+        <span class="score-weight">25%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Levy Collection Efficiency</span>
+        <span class="score-weight">25%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Current Ratio (Liquidity)</span>
+        <span class="score-weight">20%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Unplanned Maintenance %</span>
+        <span class="score-weight">15%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Admin Cost Ratio</span>
+        <span class="score-weight">15%</span>
+      </div>
+    </div>
+  </div>
+  <div class="rating-strip reveal">
+    <div class="rating-pill" style="background:rgba(200,55,58,0.2);color:#ff6b6e">● Critical &lt; 1.5</div>
+    <div class="rating-pill" style="background:rgba(224,123,42,0.2);color:#f0a060">● High Risk 1.5–2.5</div>
+    <div class="rating-pill" style="background:rgba(212,160,23,0.2);color:#d4a017">● Moderate 2.5–3.5</div>
+    <div class="rating-pill" style="background:rgba(90,158,111,0.2);color:#5a9e6f">● Low Risk 3.5–4.5</div>
+    <div class="rating-pill" style="background:rgba(29,158,117,0.2);color:#1D9E75">● Adequate &gt; 4.5</div>
+  </div>
+</section>
+
+<!-- DATA -->
+<section class="data-section" id="data">
+  <div class="section-tag">Real Data — Pilot Analysis</div>
+  <h2 class="section-title">9 Schemes. Zero Adequately Funded.</h2>
+  <p class="section-sub">Our KwaZulu-Natal pilot analysis reveals a consistent pattern: schemes are financially managed with reasonable competence, but universally failing on long-term capital planning.</p>
+  <div class="data-grid reveal">
+    <div>
+      <table class="scheme-table">
+        <thead>
+          <tr>
+            <th>Scheme</th>
+            <th>Overall</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Bordeaux</td><td>2.21</td><td><span class="badge badge-high">High Risk</span></td></tr>
+          <tr><td>The Beacon</td><td>2.29</td><td><span class="badge badge-high">High Risk</span></td></tr>
+          <tr><td>Heritage Estate</td><td>2.58</td><td><span class="badge badge-moderate">Moderate</span></td></tr>
+          <tr><td>Mandela Rhodes Place</td><td>2.74</td><td><span class="badge badge-moderate">Moderate</span></td></tr>
+          <tr><td>Raeson Court</td><td>2.85</td><td><span class="badge badge-moderate">Moderate</span></td></tr>
+          <tr><td>Phumulani Flats</td><td>2.86</td><td><span class="badge badge-moderate">Moderate</span></td></tr>
+          <tr><td>Iliza Bay</td><td>2.99</td><td><span class="badge badge-moderate">Moderate</span></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.78rem;color:var(--slate);margin-top:0.8rem;">Latest year submissions, sectional title schemes only</p>
+    </div>
+    <div class="finding-list">
+      <div class="finding">
+        <div class="finding-icon">📊</div>
+        <div class="finding-text">
+          <h4>Average reserve adequacy: 6.3%</h4>
+          <p>The typical scheme holds just 6.3% of its MRRP-required reserve fund. The statutory minimum contribution floor is already being breached by most.</p>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="finding-icon">📈</div>
+        <div class="finding-text">
+          <h4>Financial health is reasonable (avg 3.85)</h4>
+          <p>Schemes are collecting levies, managing expenses and maintaining liquidity — the MRRP underfunding is the singular dominant drag on overall scores.</p>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="finding-icon">📉</div>
+        <div class="finding-text">
+          <h4>Two schemes deteriorated to High Risk in 2025</h4>
+          <p>Bordeaux and The Beacon both moved from Moderate to High Risk between 2024 and 2025 — an early warning signal the data makes visible.</p>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="finding-icon">⚠️</div>
+        <div class="finding-text">
+          <h4>Trustees carry R10M+ personal exposure</h4>
+          <p>In schemes with large insured values, the unfunded MRRP liability per scheme can exceed R100M — and trustees are personally exposed for non-compliance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET -->
+<section class="market" id="market">
+  <div class="section-tag">Who We Serve</div>
+  <h2 class="section-title">Multiple Entry Points Across<br>the Property Ecosystem</h2>
+  <p class="section-sub">Every participant in the sectional title value chain carries reserve fund risk. SchemeGuard makes it measurable for all of them.</p>
+  <div class="market-grid reveal">
+    <div class="market-card">
+      <div class="market-icon">🏦</div>
+      <h3>Banks &amp; Lenders</h3>
+      <div class="market-size">4 major banks + 20+ niche lenders</div>
+      <p>Unpriced reserve fund risk sits in every sectional title mortgage book. No systematic assessment tool currently exists at origination or portfolio level.</p>
+      <div class="market-offer">Portfolio risk screening and bond origination due diligence reports</div>
+    </div>
+    <div class="market-card">
+      <div class="market-icon">🏢</div>
+      <h3>Managing Agents</h3>
+      <div class="market-size">500+ firms managing 50,000 schemes</div>
+      <p>Trustees are unaware of their obligations and managing agents carry reputational and liability risk when schemes they manage are non-compliant.</p>
+      <div class="market-offer">Compliance dashboard, trustee reports and MRRP preparation support</div>
+    </div>
+    <div class="market-card">
+      <div class="market-icon">⚖️</div>
+      <h3>Conveyancers &amp; Attorneys</h3>
+      <div class="market-size">Pre-purchase due diligence market</div>
+      <p>Buyers acquire undisclosed contingent liabilities at transfer. A pre-purchase reserve fund assessment is a genuine consumer protection product.</p>
+      <div class="market-offer">Pre-purchase reserve fund assessment report per scheme</div>
+    </div>
+    <div class="market-card">
+      <div class="market-icon">👥</div>
+      <h3>Body Corporates &amp; Trustees</h3>
+      <div class="market-size">250,000+ trustees across South Africa</div>
+      <p>Most trustees serve without any training on their statutory obligations. Personal liability exposure is real, immediate and largely unknown.</p>
+      <div class="market-offer">Trustee risk awareness reports and compliance road maps</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-tag">Services &amp; Pricing</div>
+  <h2 class="section-title">Scalable from Single Scheme<br>to Portfolio Intelligence</h2>
+  <p class="section-sub">From a single trustee briefing to a bank-wide portfolio screen — SchemeGuard has a service for every level of engagement.</p>
+  <div class="pricing-grid reveal">
+    <div class="price-card">
+      <div class="price-tag">Entry Level</div>
+      <h3>Scheme Report</h3>
+      <div class="price-amount">R2,500</div>
+      <p>Single scheme compliance assessment covering MRRP status, reserve fund adequacy, composite risk score and trustee liability summary.</p>
+    </div>
+    <div class="price-card">
+      <div class="price-tag">Conveyancer Ready</div>
+      <h3>Pre-Purchase Report</h3>
+      <div class="price-amount">R1,500</div>
+      <p>Buyer due diligence report on reserve fund position and unfunded liability exposure prior to unit transfer. Delivered within 48 hours.</p>
+    </div>
+    <div class="price-card">
+      <div class="price-tag">Volume Pricing</div>
+      <h3>Portfolio Screen</h3>
+      <div class="price-amount">R500/scheme</div>
+      <p>Bank or managing agent portfolio screening using AFS data. Risk-rated output with adequacy ratios and composite scores across all schemes.</p>
+    </div>
+    <div class="price-card">
+      <div class="price-tag">Liability Protection</div>
+      <h3>Trustee Compliance Pack</h3>
+      <div class="price-amount">R3,500</div>
+      <p>Full PMR 22 compliance report, trustee briefing document and 10-year MRRP framework template. Protects trustees from personal liability claims.</p>
+    </div>
+    <div class="price-card">
+      <div class="price-tag">Recurring Revenue</div>
+      <h3>Annual Monitoring</h3>
+      <div class="price-amount">R1,800/yr</div>
+      <p>Year-on-year tracking of scheme financial health and MRRP funding progress. Delivered with each set of annual financial statements.</p>
+    </div>
+    <div class="price-card">
+      <div class="price-tag">High Value</div>
+      <h3>Expert Witness / CSOS</h3>
+      <div class="price-amount">POA</div>
+      <p>Expert analysis and report preparation for CSOS disputes or litigation involving reserve fund non-compliance and trustee liability.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contact">
+  <div class="cta-content">
+    <div class="section-tag" style="color:var(--teal-light)">Get Started</div>
+    <h2>Ready to See What Your Schemes Are Really Worth?</h2>
+    <p>Submit three scheme AFS sets for a complimentary pilot assessment — no obligation. See your schemes scored, rated and benchmarked against our dataset.</p>
+    <div class="cta-steps">
+      <div class="cta-step">
+        <div class="cta-step-num">01</div>
+        <h4>Pilot Programme</h4>
+        <p>Submit 3 scheme AFS sets for complimentary risk assessment reports.</p>
+      </div>
+      <div class="cta-step">
+        <div class="cta-step-num">02</div>
+        <h4>Portfolio Discussion</h4>
+        <p>Banks and managing agents: 30-minute portfolio screening demonstration.</p>
+      </div>
+      <div class="cta-step">
+        <div class="cta-step-num">03</div>
+        <h4>Trustee Briefing</h4>
+        <p>Free awareness session on PMR 22 obligations and personal liability exposure.</p>
+      </div>
+    </div>
+    <a href="mailto:info@strategis.co.za" class="btn-primary" style="font-size:1rem;padding:1rem 2.5rem;">Contact SchemeGuard</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="brand">Scheme<span>Guard</span></div>
+  <p>A Strategis product · strategis.co.za · KwaZulu-Natal, South Africa</p>
+  <p style="font-size:0.75rem;color:rgba(255,255,255,0.2)">© 2026 Strategis</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
