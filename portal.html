@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchemeGuard | Portal</title>
+<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap');
+  :root {
+    --navy: #0a1628;
+    --teal: #00b4a6;
+    --teal-light: #00d4c4;
+    --teal-glow: rgba(0,180,166,0.15);
+    --white: #f8fafc;
+    --muted: rgba(248,250,252,0.55);
+    --border: rgba(0,180,166,0.2);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--navy); font-family: 'DM Sans', sans-serif; color: var(--white); overflow: hidden; }
+  .bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0,180,166,0.08) 0%, transparent 60%), linear-gradient(160deg, #0a1628 0%, #0c1e3a 50%, #081420 100%); }
+  .grid-overlay { position: fixed; inset: 0; z-index: 0; background-image: linear-gradient(rgba(0,180,166,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,180,166,0.04) 1px, transparent 1px); background-size: 48px 48px; }
+  .orb { position: fixed; border-radius: 50%; filter: blur(80px); z-index: 0; pointer-events: none; animation: drift 12s ease-in-out infinite alternate; }
+  .orb-1 { width: 400px; height: 400px; background: rgba(0,180,166,0.06); top: -100px; left: -100px; }
+  .orb-2 { width: 300px; height: 300px; background: rgba(0,80,160,0.08); bottom: -80px; right: -80px; animation-delay: -4s; }
+  @keyframes drift { from { transform: translate(0,0); } to { transform: translate(30px,20px); } }
+  .container { position: relative; z-index: 1; height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .card { width: 100%; max-width: 460px; background: rgba(15,34,68,0.7); border: 1px solid var(--border); border-radius: 20px; padding: 3rem 2.5rem; backdrop-filter: blur(24px); box-shadow: 0 32px 80px rgba(0,0,0,0.5); animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+  @keyframes cardIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .logo-area { text-align: center; margin-bottom: 2.5rem; }
+  .logo-icon { width: 64px; height: 64px; margin: 0 auto 1rem; background: linear-gradient(135deg, var(--teal), #007a8f); border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px rgba(0,180,166,0.3); }
+  .logo-icon svg { width: 32px; height: 32px; color: white; }
+  .logo-wordmark { font-family: 'DM Serif Display', serif; font-size: 1.75rem; color: var(--white); }
+  .logo-wordmark span { color: var(--teal); }
+  .logo-tagline { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.4rem; }
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 2rem 0; }
+  .login-heading { font-size: 1rem; font-weight: 500; color: var(--muted); text-align: center; margin-bottom: 1.5rem; }
+  .btn-microsoft { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.875rem; padding: 0.9rem 1.5rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
+  .btn-microsoft:hover { background: rgba(255,255,255,0.09); border-color: rgba(0,180,166,0.4); transform: translateY(-1px); }
+  .btn-microsoft:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .ms-logo { width: 20px; height: 20px; flex-shrink: 0; }
+  .status { margin-top: 1.25rem; padding: 0.875rem 1rem; border-radius: 10px; font-size: 0.85rem; text-align: center; display: none; line-height: 1.5; }
+  .status.info { display: block; background: rgba(0,180,166,0.1); border: 1px solid rgba(0,180,166,0.2); color: var(--teal-light); }
+  .status.error { display: block; background: rgba(220,50,50,0.1); border: 1px solid rgba(220,50,50,0.2); color: #ff8080; }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(0,180,166,0.3); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 0.4rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .portal-view { display: none; }
+  .portal-view.active { display: block; }
+  .login-view.hidden { display: none; }
+  .welcome-line { text-align: center; margin-bottom: 2rem; }
+  .welcome-name { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--white); }
+  .welcome-role { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; padding: 0.3rem 0.9rem; background: var(--teal-glow); border: 1px solid var(--border); border-radius: 20px; font-size: 0.78rem; color: var(--teal-light); letter-spacing: 0.08em; text-transform: uppercase; }
+  .portal-grid { display: grid; gap: 0.875rem; }
+  .portal-btn { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 1.25rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 14px; color: var(--white); text-decoration: none; transition: all 0.2s ease; }
+  .portal-btn:hover { background: rgba(0,180,166,0.08); border-color: rgba(0,180,166,0.35); transform: translateX(3px); }
+  .portal-btn-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem; }
+  .icon-powerapps { background: rgba(116,96,238,0.15); border: 1px solid rgba(116,96,238,0.25); }
+  .icon-powerbi { background: rgba(255,189,0,0.1); border: 1px solid rgba(255,189,0,0.2); }
+  .icon-admin { background: rgba(0,180,166,0.12); border: 1px solid rgba(0,180,166,0.25); }
+  .portal-btn-text strong { display: block; font-size: 0.92rem; font-weight: 500; margin-bottom: 0.15rem; }
+  .portal-btn-text span { font-size: 0.76rem; color: var(--muted); }
+  .signout-link { display: block; text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--muted); cursor: pointer; transition: color 0.2s; background: none; border: none; font-family: inherit; width: 100%; }
+  .signout-link:hover { color: var(--teal-light); }
+  .card-footer { text-align: center; margin-top: 2rem; font-size: 0.72rem; color: rgba(248,250,252,0.25); letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid-overlay"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="container">
+  <div class="card">
+    <div class="logo-area">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="logo-wordmark">Scheme<span>Guard</span></div>
+      <div class="logo-tagline">Risk Intelligence Platform</div>
+    </div>
+    <div class="divider"></div>
+    <div class="login-view" id="loginView">
+      <p class="login-heading">Sign in with your Microsoft account</p>
+      <button class="btn-microsoft" id="loginBtn" onclick="signIn()">
+        <svg class="ms-logo" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+          <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+          <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+          <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+        </svg>
+        Continue with Microsoft
+      </button>
+      <div class="status" id="statusMsg"></div>
+    </div>
+    <div class="portal-view" id="portalView">
+      <div class="welcome-line">
+        <div class="welcome-name" id="welcomeName">Welcome back</div>
+        <div class="welcome-role"><span>●</span> <span id="roleLabel">Loading...</span></div>
+      </div>
+      <div class="portal-grid" id="portalGrid"></div>
+      <button class="signout-link" onclick="signOut()">Sign out</button>
+    </div>
+    <div class="card-footer">SECURE ACCESS · MICROSOFT ENTRA ID</div>
+  </div>
+</div>
+<script>
+const CONFIG = {
+  tenantId:    '43b19e9e-6839-443b-bb4d-26332e6270af',
+  clientId:    'YOUR_APP_REGISTRATION_CLIENT_ID',
+  groups: {
+    admin:    'YOUR_ADMIN_GROUP_OBJECT_ID',
+    power:    'YOUR_POWER_GROUP_OBJECT_ID',
+    capturer: 'YOUR_CAPTURER_GROUP_OBJECT_ID',
+    analyst:  'YOUR_ANALYST_GROUP_OBJECT_ID',
+  },
+  urls: {
+    powerApps: 'https://apps.powerapps.com/play/e/default-43b19e9e-6839-443b-bb4d-26332e6270af/a/3ead5a79-308b-4d47-ac4a-2a7d563aa1b7?tenantId=43b19e9e-6839-443b-bb4d-26332e6270af&hint=d2607c49-86b2-4273-84b4-c567dab43903',
+    powerBI:   'https://app.powerbi.com/groups/7379f652-4d32-445e-90e1-3d8e7b3fddb7/reports/b3ff5ac4-a220-46e6-9c6a-7276089c47ef/8a693c61c2be9cd67ac1?experience=power-bi',
+    admin:     '/admin.html',
+  }
+};
+const ROLE_PORTALS = {
+  admin: { label: 'Administrator', buttons: [
+    { icon: '🛡️', cls: 'icon-admin',    label: 'Admin Panel',         desc: 'User management & system settings',   url: CONFIG.urls.admin },
+    { icon: '⚡', cls: 'icon-powerapps', label: 'SchemeGuard App',     desc: 'Data capture & scheme management',    url: CONFIG.urls.powerApps },
+    { icon: '📊', cls: 'icon-powerbi',   label: 'Analytics Dashboard', desc: 'Reports, scores & risk intelligence', url: CONFIG.urls.powerBI },
+  ]},
+  power: { label: 'Power User', buttons: [
+    { icon: '⚡', cls: 'icon-powerapps', label: 'SchemeGuard App',     desc: 'Data capture & scheme management',    url: CONFIG.urls.powerApps },
+    { icon: '📊', cls: 'icon-powerbi',   label: 'Analytics Dashboard', desc: 'Reports, scores & risk intelligence', url: CONFIG.urls.powerBI },
+  ]},
+  capturer: { label: 'Capturer', buttons: [
+    { icon: '⚡', cls: 'icon-powerapps', label: 'SchemeGuard App',     desc: 'Data capture & scheme management',    url: CONFIG.urls.powerApps },
+  ]},
+  analyst: { label: 'Analyst', buttons: [
+    { icon: '📊', cls: 'icon-powerbi',   label: 'Analytics Dashboard', desc: 'Reports, scores & risk intelligence', url: CONFIG.urls.powerBI },
+  ]},
+};
+const msalConfig = {
+  auth: {
+    clientId: CONFIG.clientId,
+    authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`,
+    redirectUri: window.location.origin + '/portal.html',
+  },
+  cache: { cacheLocation: 'sessionStorage', storeAuthStateInCookie: false }
+};
+const loginRequest = { scopes: ['openid', 'profile', 'User.Read', 'GroupMember.Read.All'] };
+let msalInstance;
+async function initMsal() {
+  msalInstance = new msal.PublicClientApplication(msalConfig);
+  await msalInstance.initialize();
+  const response = await msalInstance.handleRedirectPromise();
+  if (response) { await handleAuthResponse(response); return; }
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length > 0) { msalInstance.setActiveAccount(accounts[0]); await loadUserPortal(accounts[0]); }
+}
+async function signIn() {
+  setStatus('info', '<span class="spinner"></span> Redirecting to Microsoft login…');
+  document.getElementById('loginBtn').disabled = true;
+  try { await msalInstance.loginRedirect(loginRequest); }
+  catch (e) { setStatus('error', 'Login failed. Please try again.'); document.getElementById('loginBtn').disabled = false; }
+}
+async function handleAuthResponse(response) {
+  msalInstance.setActiveAccount(response.account);
+  await loadUserPortal(response.account);
+}
+async function loadUserPortal(account) {
+  setStatus('info', '<span class="spinner"></span> Verifying access…');
+  try {
+    const tokenResponse = await msalInstance.acquireTokenSilent({
+      scopes: ['https://graph.microsoft.com/GroupMember.Read.All'], account
+    });
+    const groupsRes = await fetch('https://graph.microsoft.com/v1.0/me/memberOf', {
+      headers: { Authorization: `Bearer ${tokenResponse.accessToken}` }
+    });
+    const groupsData = await groupsRes.json();
+    const memberIds = (groupsData.value || []).map(g => g.id);
+    const role = resolveRole(memberIds);
+    if (!role) { setStatus('error', 'Your account does not have access to SchemeGuard. Contact your administrator.'); return; }
+    if (role === 'capturer') { window.location.href = CONFIG.urls.powerApps; return; }
+    if (role === 'analyst')  { window.location.href = CONFIG.urls.powerBI;   return; }
+    showPortal(account, role);
+  } catch (e) { setStatus('error', 'Could not verify group membership. Please try again.'); console.error(e); }
+}
+function resolveRole(memberIds) {
+  if (memberIds.includes(CONFIG.groups.admin))    return 'admin';
+  if (memberIds.includes(CONFIG.groups.power))    return 'power';
+  if (memberIds.includes(CONFIG.groups.capturer)) return 'capturer';
+  if (memberIds.includes(CONFIG.groups.analyst))  return 'analyst';
+  return null;
+}
+function showPortal(account, role) {
+  const firstName = account.name ? account.name.split(' ')[0] : account.username;
+  const roleData  = ROLE_PORTALS[role];
+  document.getElementById('welcomeName').textContent = `Welcome, ${firstName}`;
+  document.getElementById('roleLabel').textContent   = roleData.label;
+  const grid = document.getElementById('portalGrid');
+  grid.innerHTML = roleData.buttons.map(b => `
+    <a class="portal-btn" href="${b.url}" target="_blank" rel="noopener">
+      <div class="portal-btn-icon ${b.cls}">${b.icon}</div>
+      <div class="portal-btn-text"><strong>${b.label}</strong><span>${b.desc}</span></div>
+    </a>`).join('');
+  document.getElementById('loginView').classList.add('hidden');
+  document.getElementById('portalView').classList.add('active');
+}
+async function signOut() {
+  await msalInstance.logoutRedirect({ postLogoutRedirectUri: window.location.origin + '/portal.html' });
+}
+function setStatus(type, msg) {
+  const el = document.getElementById('statusMsg');
+  el.className = `status ${type}`;
+  el.innerHTML = msg;
+}
+initMsal().catch(console.error);
+</script>
+</body>
+</html>
