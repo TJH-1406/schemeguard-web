@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchemeGuard | Admin</title>
+<script src="https://unpkg.com/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap');
+
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0f2244;
+    --navy-card: rgba(15,34,68,0.7);
+    --teal: #00b4a6;
+    --teal-light: #00d4c4;
+    --teal-glow: rgba(0,180,166,0.15);
+    --gold: #c9a84c;
+    --white: #f8fafc;
+    --muted: rgba(248,250,252,0.55);
+    --border: rgba(0,180,166,0.2);
+    --border-subtle: rgba(255,255,255,0.06);
+    --danger: #e05555;
+    --danger-glow: rgba(224,85,85,0.15);
+    --success: #00c896;
+    --success-glow: rgba(0,200,150,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100%;
+    background: var(--navy);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--white);
+  }
+
+  .bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0,180,166,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 90%, rgba(0,100,180,0.06) 0%, transparent 60%),
+      linear-gradient(160deg, #0a1628 0%, #0c1e3a 50%, #081420 100%);
+  }
+
+  .grid-overlay {
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,180,166,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,180,166,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Layout */
+  .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(10,22,40,0.8);
+    backdrop-filter: blur(20px);
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .header-logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+
+  .header-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--teal), #007a8f);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .header-icon svg { width: 18px; height: 18px; color: white; }
+
+  .header-wordmark {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--white);
+  }
+
+  .header-wordmark span { color: var(--teal); }
+
+  .header-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    background: var(--teal-glow);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--teal-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 1rem; }
+
+  .header-user {
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .btn-signout {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.9rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .btn-signout:hover { color: var(--white); border-color: var(--border); }
+
+  /* Main content */
+  .main { flex: 1; padding: 2rem; max-width: 1100px; margin: 0 auto; width: 100%; }
+
+  .page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.75rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .page-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 2rem; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 0.25rem;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 2rem;
+  }
+
+  .tab {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+    margin-bottom: -1px;
+  }
+
+  .tab:hover { color: var(--white); }
+  .tab.active { color: var(--teal-light); border-bottom-color: var(--teal); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--navy-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(20px);
+    margin-bottom: 1.25rem;
+  }
+
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  .role-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .badge-admin    { background: rgba(0,180,166,0.12); border: 1px solid rgba(0,180,166,0.25); color: var(--teal-light); }
+  .badge-power    { background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.25); color: #e8c76a; }
+  .badge-capturer { background: rgba(116,96,238,0.12); border: 1px solid rgba(116,96,238,0.25); color: #a090f0; }
+  .badge-analyst  { background: rgba(0,160,239,0.12); border: 1px solid rgba(0,160,239,0.25); color: #40c0ff; }
+
+  /* Member list */
+  .member-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .member-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    transition: background 0.2s;
+  }
+
+  .member-row:hover { background: rgba(255,255,255,0.05); }
+
+  .member-info { display: flex; align-items: center; gap: 0.75rem; }
+
+  .member-avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--teal), #007a8f);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .member-name { font-size: 0.88rem; font-weight: 500; }
+  .member-email { font-size: 0.76rem; color: var(--muted); }
+
+  .btn-remove {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    background: var(--danger-glow);
+    border: 1px solid rgba(224,85,85,0.25);
+    border-radius: 6px;
+    color: var(--danger);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-remove:hover { background: rgba(224,85,85,0.25); }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  /* Add user form */
+  .add-user-form {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+  }
+
+  .input-group { flex: 1; min-width: 200px; }
+
+  .input-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    color: var(--white);
+    font-family: inherit;
+    font-size: 0.88rem;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .input-field:focus { border-color: var(--teal); }
+  .input-field::placeholder { color: rgba(248,250,252,0.3); }
+
+  .select-field {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    color: var(--white);
+    font-family: inherit;
+    font-size: 0.88rem;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(248,250,252,0.4)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+
+  .select-field option { background: #0f2244; color: var(--white); }
+
+  .btn-add {
+    padding: 0.7rem 1.5rem;
+    background: var(--teal);
+    border: none;
+    border-radius: 10px;
+    color: var(--navy);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    align-self: flex-end;
+    white-space: nowrap;
+  }
+
+  .btn-add:hover { background: var(--teal-light); transform: translateY(-1px); }
+  .btn-add:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Toast notifications */
+  .toast-container {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 1000;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+
+  .toast {
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    min-width: 280px;
+    animation: toastIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+
+  .toast.success { background: var(--success-glow); border: 1px solid rgba(0,200,150,0.3); color: var(--success); }
+  .toast.error   { background: var(--danger-glow);  border: 1px solid rgba(224,85,85,0.3);  color: var(--danger); }
+  .toast.info    { background: var(--teal-glow);    border: 1px solid var(--border);         color: var(--teal-light); }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    background: var(--navy-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    backdrop-filter: blur(20px);
+  }
+
+  .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+  .stat-value { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--white); }
+  .stat-sub   { font-size: 0.75rem; color: var(--teal-light); margin-top: 0.25rem; }
+
+  /* Settings */
+  .settings-grid { display: flex; flex-direction: column; gap: 1rem; }
+
+  .setting-row {
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+
+  .setting-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .setting-value {
+    font-size: 0.82rem;
+    padding: 0.7rem 1rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--teal-light);
+    font-family: monospace;
+    word-break: break-all;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,180,166,0.3);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 0.3rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-state {
+    text-align: center; padding: 2rem;
+    color: var(--muted); font-size: 0.85rem;
+  }
+
+  /* Access log table */
+  .access-table { width: 100%; border-collapse: collapse; }
+  .access-table th {
+    text-align: left; font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted);
+    padding: 0.6rem 1rem; border-bottom: 1px solid var(--border-subtle);
+  }
+  .access-table td {
+    padding: 0.75rem 1rem; font-size: 0.84rem;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .access-table tr:last-child td { border-bottom: none; }
+  .access-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Auth gate */
+  #authGate {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .auth-card {
+    text-align: center; padding: 3rem 2.5rem;
+    background: var(--navy-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    backdrop-filter: blur(24px);
+    max-width: 400px; width: 100%;
+  }
+
+  .auth-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .auth-sub { font-size: 0.84rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+  .btn-ms {
+    width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    color: var(--white);
+    font-family: inherit; font-size: 0.92rem; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+  }
+
+  .btn-ms:hover { background: rgba(255,255,255,0.09); border-color: rgba(0,180,166,0.4); }
+  .ms-logo { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .auth-status { margin-top: 1rem; font-size: 0.82rem; color: var(--teal-light); min-height: 1.2rem; }
+  .auth-error  { color: #ff8080; }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="grid-overlay"></div>
+
+<!-- Auth Gate -->
+<div id="authGate">
+  <div class="auth-card">
+    <div style="width:48px;height:48px;background:linear-gradient(135deg,var(--teal),#007a8f);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/><path d="M9 12l2 2 4-4"/></svg>
+    </div>
+    <div class="auth-title">Admin Panel</div>
+    <div class="auth-sub">Sign in with your administrator account to continue</div>
+    <button class="btn-ms" onclick="adminSignIn()">
+      <svg class="ms-logo" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+      Continue with Microsoft
+    </button>
+    <div class="auth-status" id="authStatus"></div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div class="app" id="mainApp" style="display:none">
+
+  <header class="header">
+    <a href="/portal.html" class="header-logo">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <span class="header-wordmark">Scheme<span>Guard</span></span>
+    </a>
+    <span class="header-badge">Admin Panel</span>
+    <div class="header-right">
+      <span class="header-user" id="headerUser"></span>
+      <button class="btn-signout" onclick="adminSignOut()">Sign out</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-title">User Management</div>
+    <div class="page-sub">Manage access to SchemeGuard across all roles</div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="statTotal">—</div><div class="stat-sub">across all roles</div></div>
+      <div class="stat-card"><div class="stat-label">Administrators</div><div class="stat-value" id="statAdmin">—</div><div class="stat-sub">full access</div></div>
+      <div class="stat-card"><div class="stat-label">Power Users</div><div class="stat-value" id="statPower">—</div><div class="stat-sub">apps + analytics</div></div>
+      <div class="stat-card"><div class="stat-label">Capturers</div><div class="stat-value" id="statCapturer">—</div><div class="stat-sub">data entry</div></div>
+      <div class="stat-card"><div class="stat-label">Analysts</div><div class="stat-value" id="statAnalyst">—</div><div class="stat-sub">read-only reports</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('users', this)">Users</button>
+      <button class="tab" onclick="switchTab('access', this)">Access Overview</button>
+      <button class="tab" onclick="switchTab('settings', this)">System Settings</button>
+    </div>
+
+    <!-- USERS TAB -->
+    <div class="tab-panel active" id="tab-users">
+
+      <!-- Add User -->
+      <div class="card">
+        <div class="card-title">Add New User</div>
+        <div class="add-user-form">
+          <div class="input-group">
+            <label class="input-label">Email Address</label>
+            <input class="input-field" type="email" id="newUserEmail" placeholder="user@example.com" />
+          </div>
+          <div class="input-group" style="max-width:200px">
+            <label class="input-label">Role</label>
+            <select class="select-field" id="newUserRole">
+              <option value="admin">Administrator</option>
+              <option value="power">Power User</option>
+              <option value="capturer" selected>Capturer</option>
+              <option value="analyst">Analyst</option>
+            </select>
+          </div>
+          <button class="btn-add" onclick="addUser()" id="btnAdd">Add User</button>
+        </div>
+      </div>
+
+      <!-- Group Cards -->
+      <div id="groupCards">
+        <div class="loading-state"><span class="spinner"></span> Loading group members…</div>
+      </div>
+
+    </div>
+
+    <!-- ACCESS OVERVIEW TAB -->
+    <div class="tab-panel" id="tab-access">
+      <div class="card">
+        <div class="card-header"><div class="card-title">All Users by Role</div></div>
+        <div id="accessTable"><div class="loading-state"><span class="spinner"></span> Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="tab-panel" id="tab-settings">
+      <div class="card">
+        <div class="card-header"><div class="card-title">System Configuration</div></div>
+        <div class="settings-grid">
+          <div class="setting-row"><div class="setting-label">Tenant ID</div><div class="setting-value" id="cfg-tenant"></div></div>
+          <div class="setting-row"><div class="setting-label">Client ID</div><div class="setting-value" id="cfg-client"></div></div>
+          <div class="setting-row"><div class="setting-label">PowerApps URL</div><div class="setting-value" id="cfg-powerapps"></div></div>
+          <div class="setting-row"><div class="setting-label">Power BI URL</div><div class="setting-value" id="cfg-powerbi"></div></div>
+          <div class="setting-row"><div class="setting-label">Admin Group ID</div><div class="setting-value" id="cfg-admin"></div></div>
+          <div class="setting-row"><div class="setting-label">Power Group ID</div><div class="setting-value" id="cfg-power"></div></div>
+          <div class="setting-row"><div class="setting-label">Capturer Group ID</div><div class="setting-value" id="cfg-capturer"></div></div>
+          <div class="setting-row"><div class="setting-label">Analyst Group ID</div><div class="setting-value" id="cfg-analyst"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const CONFIG = {
+  tenantId: '43b19e9e-6839-443b-bb4d-26332e6270af',
+  clientId: '20fb5438-0d5e-44e7-8647-1eb8cecb6c0a',
+  groups: {
+    admin:    '842d5445-2377-4659-bf5f-9859765aefb2',
+    power:    '8ab96bc1-c0a4-4b05-8af6-245777fdf301',
+    capturer: '2e3c884e-41ea-4abc-862f-55663d9ccb40',
+    analyst:  'a19689f4-298f-4d7b-8336-4674c58cbb80',
+  },
+  urls: {
+    powerApps: 'https://make.powerapps.com/e/Default-43b19e9e-6839-443b-bb4d-26332e6270af/canvas/?action=edit&app-id=%2Fproviders%2FMicrosoft.PowerApps%2Fapps%2F3ead5a79-308b-4d47-ac4a-2a7d563aa1b7',
+    powerBI:   'https://app.powerbi.com/groups/7379f652-4d32-445e-90e1-3d8e7b3fddb7/reports/b3ff5ac4-a220-46e6-9c6a-7276089c47ef/8a693c61c2be9cd67ac1?experience=power-bi',
+  }
+};
+
+const ROLE_LABELS = { admin: 'Administrator', power: 'Power User', capturer: 'Capturer', analyst: 'Analyst' };
+const ROLE_BADGE  = { admin: 'badge-admin', power: 'badge-power', capturer: 'badge-capturer', analyst: 'badge-analyst' };
+
+// ─── MSAL ─────────────────────────────────────────────────────────────────────
+const msalConfig = {
+  auth: {
+    clientId: CONFIG.clientId,
+    authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`,
+    redirectUri: window.location.origin + '/admin.html',
+  },
+  cache: { cacheLocation: 'sessionStorage', storeAuthStateInCookie: false }
+};
+
+const adminScopes = {
+  scopes: ['openid', 'profile', 'User.Read', 'GroupMember.Read.All', 'Group.ReadWrite.All', 'User.ReadWrite.All']
+};
+
+let msalInstance, accessToken, currentUser;
+const groupMembers = { admin: [], power: [], capturer: [], analyst: [] };
+
+async function initAdmin() {
+  msalInstance = new msal.PublicClientApplication(msalConfig);
+  await msalInstance.initialize();
+
+  const response = await msalInstance.handleRedirectPromise();
+  if (response) {
+    msalInstance.setActiveAccount(response.account);
+    await loadAdmin(response.account);
+    return;
+  }
+
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length > 0) {
+    msalInstance.setActiveAccount(accounts[0]);
+    await loadAdmin(accounts[0]);
+  }
+}
+
+async function adminSignIn() {
+  document.getElementById('authStatus').innerHTML = '<span class="spinner"></span> Redirecting…';
+  try { await msalInstance.loginRedirect({ ...adminScopes, prompt: 'select_account' }); }
+  catch (e) { document.getElementById('authStatus').innerHTML = '<span class="auth-error">Login failed. Please try again.</span>'; }
+}
+
+async function adminSignOut() {
+  await msalInstance.logoutRedirect({ postLogoutRedirectUri: window.location.origin + '/admin.html' });
+}
+
+async function getToken() {
+  const account = msalInstance.getActiveAccount();
+  const resp = await msalInstance.acquireTokenSilent({ ...adminScopes, account });
+  return resp.accessToken;
+}
+
+async function loadAdmin(account) {
+  // Verify admin group membership
+  document.getElementById('authStatus').innerHTML = '<span class="spinner"></span> Verifying admin access…';
+  try {
+    const token = await getToken();
+    accessToken = token;
+
+    const groupsRes = await fetch('https://graph.microsoft.com/v1.0/me/memberOf', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const groupsData = await groupsRes.json();
+    const memberIds = (groupsData.value || []).map(g => g.id);
+
+    if (!memberIds.includes(CONFIG.groups.admin)) {
+      document.getElementById('authStatus').innerHTML = '<span class="auth-error">Access denied. Admin role required.</span>';
+      return;
+    }
+
+    currentUser = account;
+    document.getElementById('authGate').style.display = 'none';
+    document.getElementById('mainApp').style.display  = 'flex';
+    document.getElementById('headerUser').textContent = account.name || account.username;
+
+    await loadAllGroups();
+    populateSettings();
+
+  } catch (e) {
+    document.getElementById('authStatus').innerHTML = '<span class="auth-error">Error verifying access. Please try again.</span>';
+    console.error(e);
+  }
+}
+
+// ─── GRAPH API ────────────────────────────────────────────────────────────────
+async function graphGet(url) {
+  const token = await getToken();
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  return res.json();
+}
+
+async function graphPost(url, body) {
+  const token = await getToken();
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return res;
+}
+
+async function graphDelete(url) {
+  const token = await getToken();
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res;
+}
+
+async function loadAllGroups() {
+  const roles = ['admin', 'power', 'capturer', 'analyst'];
+  await Promise.all(roles.map(async role => {
+    try {
+      const data = await graphGet(`https://graph.microsoft.com/v1.0/groups/${CONFIG.groups[role]}/members?$select=id,displayName,userPrincipalName`);
+      groupMembers[role] = (data.value || []);
+    } catch (e) { groupMembers[role] = []; }
+  }));
+  renderGroupCards();
+  renderAccessTable();
+  updateStats();
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderGroupCards() {
+  const roles = ['admin', 'power', 'capturer', 'analyst'];
+  const html = roles.map(role => `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="role-badge ${ROLE_BADGE[role]}">${ROLE_LABELS[role]}</span>
+          <span style="color:var(--muted);font-weight:400;font-size:0.82rem">${groupMembers[role].length} member${groupMembers[role].length !== 1 ? 's' : ''}</span>
+        </div>
+      </div>
+      <div class="member-list">
+        ${groupMembers[role].length === 0
+          ? `<div class="empty-state">No members in this group</div>`
+          : groupMembers[role].map(m => `
+            <div class="member-row">
+              <div class="member-info">
+                <div class="member-avatar">${getInitials(m.displayName || m.userPrincipalName)}</div>
+                <div>
+                  <div class="member-name">${m.displayName || '—'}</div>
+                  <div class="member-email">${m.userPrincipalName}</div>
+                </div>
+              </div>
+              <button class="btn-remove" onclick="removeUser('${m.id}', '${role}', '${m.displayName || m.userPrincipalName}')">Remove</button>
+            </div>`).join('')
+        }
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('groupCards').innerHTML = html;
+}
+
+function renderAccessTable() {
+  const roles = ['admin', 'power', 'capturer', 'analyst'];
+  const allUsers = [];
+  roles.forEach(role => {
+    groupMembers[role].forEach(m => allUsers.push({ ...m, role }));
+  });
+
+  if (allUsers.length === 0) {
+    document.getElementById('accessTable').innerHTML = '<div class="empty-state">No users found</div>';
+    return;
+  }
+
+  const rows = allUsers.map(u => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:0.6rem">
+          <div class="member-avatar" style="width:28px;height:28px;font-size:0.7rem">${getInitials(u.displayName || u.userPrincipalName)}</div>
+          <span>${u.displayName || '—'}</span>
+        </div>
+      </td>
+      <td style="color:var(--muted)">${u.userPrincipalName}</td>
+      <td><span class="role-badge ${ROLE_BADGE[u.role]}">${ROLE_LABELS[u.role]}</span></td>
+    </tr>
+  `).join('');
+
+  document.getElementById('accessTable').innerHTML = `
+    <table class="access-table">
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function updateStats() {
+  const total = Object.values(groupMembers).reduce((s, arr) => s + arr.length, 0);
+  document.getElementById('statTotal').textContent    = total;
+  document.getElementById('statAdmin').textContent    = groupMembers.admin.length;
+  document.getElementById('statPower').textContent    = groupMembers.power.length;
+  document.getElementById('statCapturer').textContent = groupMembers.capturer.length;
+  document.getElementById('statAnalyst').textContent  = groupMembers.analyst.length;
+}
+
+function populateSettings() {
+  document.getElementById('cfg-tenant').textContent    = CONFIG.tenantId;
+  document.getElementById('cfg-client').textContent    = CONFIG.clientId;
+  document.getElementById('cfg-powerapps').textContent = CONFIG.urls.powerApps;
+  document.getElementById('cfg-powerbi').textContent   = CONFIG.urls.powerBI;
+  document.getElementById('cfg-admin').textContent     = CONFIG.groups.admin;
+  document.getElementById('cfg-power').textContent     = CONFIG.groups.power;
+  document.getElementById('cfg-capturer').textContent  = CONFIG.groups.capturer;
+  document.getElementById('cfg-analyst').textContent   = CONFIG.groups.analyst;
+}
+
+// ─── USER ACTIONS ─────────────────────────────────────────────────────────────
+async function addUser() {
+  const email = document.getElementById('newUserEmail').value.trim();
+  const role  = document.getElementById('newUserRole').value;
+
+  if (!email) { showToast('Please enter an email address', 'error'); return; }
+  if (!email.includes('@')) { showToast('Please enter a valid email address', 'error'); return; }
+
+  const btn = document.getElementById('btnAdd');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Adding…';
+
+  try {
+    // Find user by email
+    const userRes = await graphGet(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(email)}?$select=id,displayName,userPrincipalName`);
+
+    if (!userRes.id) {
+      showToast(`User ${email} not found in your directory`, 'error');
+      btn.disabled = false; btn.textContent = 'Add User';
+      return;
+    }
+
+    // Check if already in group
+    const already = groupMembers[role].find(m => m.id === userRes.id);
+    if (already) {
+      showToast(`${email} is already a ${ROLE_LABELS[role]}`, 'error');
+      btn.disabled = false; btn.textContent = 'Add User';
+      return;
+    }
+
+    // Add to group
+    const addRes = await graphPost(
+      `https://graph.microsoft.com/v1.0/groups/${CONFIG.groups[role]}/members/$ref`,
+      { '@odata.id': `https://graph.microsoft.com/v1.0/directoryObjects/${userRes.id}` }
+    );
+
+    if (addRes.ok || addRes.status === 204) {
+      groupMembers[role].push(userRes);
+      renderGroupCards();
+      renderAccessTable();
+      updateStats();
+      document.getElementById('newUserEmail').value = '';
+      showToast(`${userRes.displayName || email} added as ${ROLE_LABELS[role]}`, 'success');
+    } else {
+      const err = await addRes.json();
+      showToast(`Failed to add user: ${err.error?.message || 'Unknown error'}`, 'error');
+    }
+
+  } catch (e) {
+    showToast('Error adding user. Check the email and try again.', 'error');
+    console.error(e);
+  }
+
+  btn.disabled = false; btn.textContent = 'Add User';
+}
+
+async function removeUser(userId, role, name) {
+  if (!confirm(`Remove ${name} from ${ROLE_LABELS[role]}?`)) return;
+
+  try {
+    const res = await graphDelete(
+      `https://graph.microsoft.com/v1.0/groups/${CONFIG.groups[role]}/members/${userId}/$ref`
+    );
+
+    if (res.ok || res.status === 204) {
+      groupMembers[role] = groupMembers[role].filter(m => m.id !== userId);
+      renderGroupCards();
+      renderAccessTable();
+      updateStats();
+      showToast(`${name} removed from ${ROLE_LABELS[role]}`, 'success');
+    } else {
+      showToast('Failed to remove user. Please try again.', 'error');
+    }
+  } catch (e) {
+    showToast('Error removing user.', 'error');
+    console.error(e);
+  }
+}
+
+// ─── UTILITIES ────────────────────────────────────────────────────────────────
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  const parts = name.split(/[\s@]/);
+  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+}
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}</span> ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+initAdmin().catch(console.error);
+</script>
+</body>
+</html>
