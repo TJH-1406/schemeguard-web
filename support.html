@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchemeGuard — Support</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1A2B4A;
+    --navy-deep: #0F1E35;
+    --teal: #1D9E75;
+    --teal-light: #25C090;
+    --teal-pale: #E8F5F1;
+    --white: #FFFFFF;
+    --off: #F4F7F9;
+    --slate: #64748B;
+    --text: #1A2B4A;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(26, 43, 74, 0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .nav-brand span { color: var(--teal); }
+  .nav-links { display: flex; gap: 2.5rem; }
+  .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--teal-light); }
+  .nav-cta {
+    background: var(--teal);
+    color: var(--white) !important;
+    padding: 0.6rem 1.4rem;
+    border-radius: 4px;
+    font-weight: 600 !important;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 40vh;
+    background: var(--navy-deep);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 8rem 4rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(29,158,117,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: absolute; inset: 0; opacity: 0.03;
+    background-image: linear-gradient(var(--teal) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--teal) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position: relative; max-width: 700px; }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(29,158,117,0.15);
+    border: 1px solid rgba(29,158,117,0.4);
+    color: var(--teal-light);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+  }
+  .hero h1 em { color: var(--teal); font-style: normal; }
+  .hero-sub {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* SECTION */
+  section { padding: 5rem 4rem; }
+  .section-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.8rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    font-size: 1rem;
+    color: var(--slate);
+    line-height: 1.7;
+    max-width: 580px;
+    font-weight: 300;
+    margin-bottom: 3rem;
+  }
+
+  /* CONTACT CARDS */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin-bottom: 4rem;
+  }
+  .contact-card {
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    padding: 2rem;
+    border-top: 3px solid var(--teal);
+    transition: box-shadow 0.2s;
+  }
+  .contact-card:hover { box-shadow: 0 4px 24px rgba(29,158,117,0.1); }
+  .contact-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+  .contact-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+  }
+  .contact-card p {
+    font-size: 0.88rem;
+    color: var(--slate);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .contact-card a {
+    color: var(--teal);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+  .contact-card a:hover { color: var(--teal-light); }
+
+  /* FAQ */
+  .faq-section { background: var(--off); }
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1100px;
+  }
+  .faq-item {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 1.8rem;
+    border-left: 4px solid var(--teal);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .faq-item h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.6rem;
+  }
+  .faq-item p {
+    font-size: 0.88rem;
+    color: var(--slate);
+    line-height: 1.65;
+  }
+
+  /* ROLES */
+  .roles-section { background: var(--white); }
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    max-width: 1100px;
+  }
+  .role-card {
+    background: var(--off);
+    border-radius: 8px;
+    padding: 1.8rem;
+  }
+  .role-card h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.8rem;
+  }
+  .role-item {
+    display: flex; gap: 0.5rem;
+    font-size: 0.87rem;
+    color: var(--slate);
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+  .role-check { color: var(--teal); font-weight: 700; flex-shrink: 0; }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy-deep);
+    padding: 2rem 4rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  footer .brand {
+    font-family: 'Playfair Display', serif;
+    color: var(--white);
+    font-size: 1.1rem;
+  }
+  footer .brand span { color: var(--teal); }
+  footer p { font-size: 0.82rem; color: rgba(255,255,255,0.35); }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .hero { padding: 6rem 1.5rem 3rem; }
+    .contact-grid, .faq-grid, .roles-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/index.html" class="nav-brand">Scheme<span>Guard</span></a>
+  <div class="nav-links">
+    <a href="/index.html#problem">The Problem</a>
+    <a href="/index.html#scoring">How It Works</a>
+    <a href="/index.html#data">Real Data</a>
+    <a href="/index.html#pricing">Services</a>
+    <a href="/index.html#contact" class="nav-cta">Get a Report</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Support</div>
+    <h1>How Can We <em>Help?</em></h1>
+    <p class="hero-sub">SchemeGuard is operated by Zatisvy (Pty) Ltd. We're here to help with access issues, data queries, report requests and technical support.</p>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section>
+  <div class="section-tag">Get In Touch</div>
+  <h2 class="section-title">Contact Us</h2>
+  <p class="section-sub">Choose the right channel for your query and we'll get back to you as quickly as possible.</p>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <div class="contact-icon">📧</div>
+      <h3>General Support</h3>
+      <p>Questions about your account, access, reports or data submissions.</p>
+      <a href="mailto:support@zatisvy.com">support@zatisvy.com</a>
+    </div>
+    <div class="contact-card">
+      <div class="contact-icon">🔒</div>
+      <h3>Privacy & Data</h3>
+      <p>POPIA requests, data access, corrections or deletion enquiries.</p>
+      <a href="mailto:privacy@zatisvy.com">privacy@zatisvy.com</a>
+    </div>
+    <div class="contact-card">
+      <div class="contact-icon">💼</div>
+      <h3>Commercial Enquiries</h3>
+      <p>Pricing, pilot programmes, bank and managing agent partnerships.</p>
+      <a href="mailto:info@zatisvy.com">info@zatisvy.com</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="section-tag">FAQ</div>
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <p class="section-sub">Answers to common questions about SchemeGuard and how it works.</p>
+  <div class="faq-grid">
+    <div class="faq-item">
+      <h4>Who can submit an AFS to SchemeGuard?</h4>
+      <p>Submissions must be made by an authorised party — typically a managing agent, bank, conveyancer or body corporate trustee. Individual owners cannot submit on behalf of a body corporate.</p>
+    </div>
+    <div class="faq-item">
+      <h4>How is the composite score calculated?</h4>
+      <p>The composite score combines a Financial Health score (60% weight) and an MRRP Reserve Fund score (40% weight), each rated on a 0–5 scale. Scores above 4.5 are Adequate; below 1.5 are Critical.</p>
+    </div>
+    <div class="faq-item">
+      <h4>How do I get access to the SchemeGuard platform?</h4>
+      <p>Access is granted via invitation. Contact us to request access. Users are authenticated via Microsoft Entra ID and must be registered in the system before logging in.</p>
+    </div>
+    <div class="faq-item">
+      <h4>How long does it take to receive a report?</h4>
+      <p>Once AFS data has been submitted and validated, the SchemeGuard report is generated immediately. Pre-purchase reports are typically delivered within 48 hours of AFS receipt.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Is my scheme's data kept confidential?</h4>
+      <p>Yes. Data is only shared with organisations that have a signed Sharing Agreement in place. Scheme names are anonymised in any benchmarking or pilot analysis presented to third parties.</p>
+    </div>
+    <div class="faq-item">
+      <h4>What is the MRRP and why does it matter?</h4>
+      <p>The Maintenance, Repair and Replacement Plan is a statutory requirement under PMR 22 of the STSMA Regulations. It requires a 10-year capital plan for all common property components. Most schemes do not comply.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Can I request a correction to my scheme's data?</h4>
+      <p>Yes. Contact support@zatisvy.com with the scheme name, submission year and the correction required. We will review and update within 5 business days.</p>
+    </div>
+    <div class="faq-item">
+      <h4>What does the RAG rating mean?</h4>
+      <p>Green = Adequate or Low Risk (composite ≥ 3.5). Amber = Moderate (2.5–3.5). Red = High Risk or Critical (below 2.5). The RAG rating provides an at-a-glance summary for banks and trustees.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section class="roles-section">
+  <div class="section-tag">User Roles</div>
+  <h2 class="section-title">What Each Role Can Do</h2>
+  <p class="section-sub">SchemeGuard has role-based access controls. Your access level depends on the role assigned by your organisation.</p>
+  <div class="roles-grid">
+    <div class="role-card">
+      <h4>🔑 Admin</h4>
+      <div class="role-item"><span class="role-check">✓</span><span>Full access to all screens and data</span></div>
+      <div class="role-item"><span class="role-check">✓</span><span>User management and sharing agreements</span></div>
+      <div class="role-item"><span class="role-check">✓</span><span>AFS data capture and submission</span></div>
+      <div class="role-item"><span class="role-check">✓</span><span>Power BI reports and paginated reports</span></div>
+    </div>
+    <div class="role-card">
+      <h4>📝 Capturer</h4>
+      <div class="role-item"><span class="role-check">✓</span><span>AFS data capture and submission</span></div>
+      <div class="role-item"><span class="role-check">✓</span><span>View schemes assigned to their organisation</span></div>
+      <div class="role-item"><span class="role-check">✗</span><span>No access to admin screens or user management</span></div>
+      <div class="role-item"><span class="role-check">✗</span><span>No Power BI access</span></div>
+    </div>
+    <div class="role-card">
+      <h4>📊 Analyst</h4>
+      <div class="role-item"><span class="role-check">✓</span><span>Power BI reports and dashboards</span></div>
+      <div class="role-item"><span class="role-check">✓</span><span>Paginated scheme health reports</span></div>
+      <div class="role-item"><span class="role-check">✗</span><span>No data capture access</span></div>
+      <div class="role-item"><span class="role-check">✗</span><span>No admin screens</span></div>
+    </div>
+    <div class="role-card">
+      <h4>⚡ Power User</h4>
+      <div class="role-item"><span class="role-check">✓</span><span>AFS data capture and submission</span></div>
+      <div class="role-item"><span class="role-check">✓</span><span>Power BI reports and dashboards</span></div>
+      <div class="role-item"><span class="role-check">✗</span><span>No admin screens or user management</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="brand">Scheme<span>Guard</span></div>
+  <p>A Zatisvy (Pty) Ltd product · schemeguard.co.za · KwaZulu-Natal, South Africa</p>
+  <p style="font-size:0.75rem;color:rgba(255,255,255,0.2)">© 2026 Zatisvy (Pty) Ltd &nbsp;·&nbsp; <a href="https://strategis2-my.sharepoint.com/:b:/g/personal/trevorh_zatisvy_com/IQAXj-2d1BZ6Tq5-04u30CV1AfCS9-ETTZExTHY1SA3RkV0?e=krHTqy" target="_blank" style="color:rgba(255,255,255,0.4);text-decoration:none;">Privacy Statement</a></p>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
