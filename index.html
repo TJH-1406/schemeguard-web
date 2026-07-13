@@ -274,13 +274,46 @@
   .scoring .section-title { color: var(--white); }
   .scoring .section-sub { color: rgba(255,255,255,0.55); }
   .scoring .section-tag { color: var(--teal-light); }
-  .score-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    max-width: 1000px;
-    margin-bottom: 2.5rem;
-  }
+<div class="score-grid reveal">
+    <div class="score-card">
+      <div class="score-card-title">MRRP & Reserve Score — 40%</div>
+      <div class="score-factor">
+        <span class="score-factor-name">Reserve Fund Adequacy %</span>
+        <span class="score-weight">60%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Annual Contribution Coverage</span>
+        <span class="score-weight">40%</span>
+      </div>
+      <div class="score-factor" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:0.5rem;padding-top:0.8rem;">
+        <span class="score-factor-name" style="font-size:0.78rem;color:rgba(255,255,255,0.4);font-style:italic;">Age implicit in adequacy multiplier</span>
+        <span></span>
+      </div>
+    </div>
+    <div class="score-card">
+      <div class="score-card-title">Financial Health Score — 60%</div>
+      <div class="score-factor">
+        <span class="score-factor-name">Surplus / Deficit Ratio</span>
+        <span class="score-weight">25%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Levy Collection (months outstanding)</span>
+        <span class="score-weight">25%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Current Ratio (Liquidity)</span>
+        <span class="score-weight">20%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Unplanned Maintenance %</span>
+        <span class="score-weight">15%</span>
+      </div>
+      <div class="score-factor">
+        <span class="score-factor-name">Admin Cost Ratio</span>
+        <span class="score-weight">15%</span>
+      </div>
+    </div>
+  </div>
   .score-card {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.08);
