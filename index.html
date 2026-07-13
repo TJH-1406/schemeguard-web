@@ -21,9 +21,7 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { scroll-behavior: smooth; }
-
   body {
     font-family: 'DM Sans', sans-serif;
     color: var(--text);
@@ -31,7 +29,7 @@
     overflow-x: hidden;
   }
 
-  /* ─── NAV ─────────────────────────────────────── */
+  /* NAV */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
@@ -66,7 +64,7 @@
   }
   .nav-cta:hover { background: var(--teal-light) !important; color: var(--white) !important; }
 
-  /* ─── HERO ───────────────────────────────────── */
+  /* HERO */
   .hero {
     min-height: 100vh;
     background: var(--navy-deep);
@@ -184,7 +182,7 @@
     letter-spacing: 0.08em;
   }
 
-  /* ─── SECTION BASE ────────────────────────────── */
+  /* SECTION BASE */
   section { padding: 6rem 4rem; }
   .section-tag {
     font-size: 0.72rem;
@@ -212,7 +210,7 @@
     margin-bottom: 3.5rem;
   }
 
-  /* ─── PROBLEM ─────────────────────────────────── */
+  /* PROBLEM */
   .problem { background: var(--off); }
   .problem-grid {
     display: grid;
@@ -229,15 +227,10 @@
     transition: transform 0.2s, box-shadow 0.2s;
   }
   .problem-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
-  .problem-card h3 {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--navy);
-    margin-bottom: 0.75rem;
-  }
+  .problem-card h3 { font-size: 1.05rem; font-weight: 600; color: var(--navy); margin-bottom: 0.75rem; }
   .problem-card p { font-size: 0.92rem; color: var(--slate); line-height: 1.65; }
 
-  /* ─── FRAMEWORK ───────────────────────────────── */
+  /* FRAMEWORK */
   .framework { background: var(--white); }
   .framework-inner {
     display: grid;
@@ -247,11 +240,7 @@
     align-items: start;
   }
   .law-stack { display: flex; flex-direction: column; gap: 0.5rem; }
-  .law-block {
-    padding: 1.1rem 1.4rem;
-    border-radius: 6px;
-    position: relative;
-  }
+  .law-block { padding: 1.1rem 1.4rem; border-radius: 6px; position: relative; }
   .law-block h4 { font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 0.25rem; }
   .law-block p { font-size: 0.82rem; color: rgba(255,255,255,0.65); }
   .law-arrow { text-align: center; color: var(--teal); font-size: 1.2rem; line-height: 1; }
@@ -269,51 +258,18 @@
   }
   .pmr-check { color: var(--teal); font-weight: 700; flex-shrink: 0; margin-top: 0.05rem; }
 
-  /* ─── SCORING ─────────────────────────────────── */
+  /* SCORING */
   .scoring { background: var(--navy); }
   .scoring .section-title { color: var(--white); }
   .scoring .section-sub { color: rgba(255,255,255,0.55); }
   .scoring .section-tag { color: var(--teal-light); }
-<div class="score-grid reveal">
-    <div class="score-card">
-      <div class="score-card-title">MRRP & Reserve Score — 40%</div>
-      <div class="score-factor">
-        <span class="score-factor-name">Reserve Fund Adequacy %</span>
-        <span class="score-weight">60%</span>
-      </div>
-      <div class="score-factor">
-        <span class="score-factor-name">Annual Contribution Coverage</span>
-        <span class="score-weight">40%</span>
-      </div>
-      <div class="score-factor" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:0.5rem;padding-top:0.8rem;">
-        <span class="score-factor-name" style="font-size:0.78rem;color:rgba(255,255,255,0.4);font-style:italic;">Age implicit in adequacy multiplier</span>
-        <span></span>
-      </div>
-    </div>
-    <div class="score-card">
-      <div class="score-card-title">Financial Health Score — 60%</div>
-      <div class="score-factor">
-        <span class="score-factor-name">Surplus / Deficit Ratio</span>
-        <span class="score-weight">25%</span>
-      </div>
-      <div class="score-factor">
-        <span class="score-factor-name">Levy Collection (months outstanding)</span>
-        <span class="score-weight">25%</span>
-      </div>
-      <div class="score-factor">
-        <span class="score-factor-name">Current Ratio (Liquidity)</span>
-        <span class="score-weight">20%</span>
-      </div>
-      <div class="score-factor">
-        <span class="score-factor-name">Unplanned Maintenance %</span>
-        <span class="score-weight">15%</span>
-      </div>
-      <div class="score-factor">
-        <span class="score-factor-name">Admin Cost Ratio</span>
-        <span class="score-weight">15%</span>
-      </div>
-    </div>
-  </div>
+  .score-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin-bottom: 2.5rem;
+  }
   .score-card {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.08);
@@ -347,9 +303,7 @@
     padding: 0.2rem 0.6rem;
     border-radius: 3px;
   }
-  .rating-strip {
-    display: flex; gap: 0.5rem; flex-wrap: wrap;
-  }
+  .rating-strip { display: flex; gap: 0.5rem; flex-wrap: wrap; }
   .rating-pill {
     padding: 0.5rem 1.2rem;
     border-radius: 4px;
@@ -357,7 +311,7 @@
     font-weight: 600;
   }
 
-  /* ─── DATA ────────────────────────────────────── */
+  /* DATA */
   .data-section { background: var(--off); }
   .data-grid {
     display: grid;
@@ -412,7 +366,7 @@
   .finding-text h4 { font-size: 0.9rem; font-weight: 600; color: var(--navy); margin-bottom: 0.2rem; }
   .finding-text p { font-size: 0.85rem; color: var(--slate); line-height: 1.5; }
 
-  /* ─── MARKET ──────────────────────────────────── */
+  /* MARKET */
   .market { background: var(--white); }
   .market-grid {
     display: grid;
@@ -434,7 +388,7 @@
   .market-offer { font-size: 0.88rem; color: var(--navy); font-weight: 500; }
   .market-offer::before { content: '↳ '; color: var(--teal); }
 
-  /* ─── PRICING ─────────────────────────────────── */
+  /* PRICING */
   .pricing { background: var(--off); }
   .pricing-grid {
     display: grid;
@@ -473,7 +427,7 @@
   }
   .price-card p { font-size: 0.88rem; color: var(--slate); line-height: 1.6; flex: 1; }
 
-  /* ─── CTA ─────────────────────────────────────── */
+  /* CTA */
   .cta {
     background: var(--navy);
     text-align: center;
@@ -526,22 +480,18 @@
   .cta-step h4 { font-size: 0.9rem; font-weight: 600; color: var(--white); margin-bottom: 0.4rem; }
   .cta-step p { font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.5; }
 
-  /* ─── FOOTER ──────────────────────────────────── */
+  /* FOOTER */
   footer {
     background: var(--navy-deep);
     padding: 2rem 4rem;
     display: flex; justify-content: space-between; align-items: center;
     border-top: 1px solid rgba(255,255,255,0.06);
   }
-  footer .brand {
-    font-family: 'Playfair Display', serif;
-    color: var(--white);
-    font-size: 1.1rem;
-  }
+  footer .brand { font-family: 'Playfair Display', serif; color: var(--white); font-size: 1.1rem; }
   footer .brand span { color: var(--teal); }
   footer p { font-size: 0.82rem; color: rgba(255,255,255,0.35); }
 
-  /* ─── ANIMATIONS ──────────────────────────────── */
+  /* ANIMATIONS */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -552,7 +502,7 @@
   }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
-  /* ─── RESPONSIVE ──────────────────────────────── */
+  /* RESPONSIVE */
   @media (max-width: 768px) {
     nav { padding: 1rem 1.5rem; }
     .nav-links { display: none; }
@@ -683,29 +633,21 @@
 <section class="scoring" id="scoring">
   <div class="section-tag">How It Works</div>
   <h2 class="section-title">Two Scores. One Overall Rating.</h2>
-  <p class="section-sub">SchemeGuard produces a composite risk score combining MRRP compliance and financial health into a single, actionable rating for every scheme.</p>
+  <p class="section-sub">SchemeGuard produces a composite risk score weighted 60% Financial Health and 40% MRRP Reserve Fund position — reflecting what matters most to banks assessing bond risk.</p>
   <div class="score-grid reveal">
     <div class="score-card">
-      <div class="score-card-title">MRRP & Reserve Score — 50%</div>
+      <div class="score-card-title">MRRP &amp; Reserve Score — 40%</div>
       <div class="score-factor">
         <span class="score-factor-name">Reserve Fund Adequacy %</span>
-        <span class="score-weight">30%</span>
+        <span class="score-weight">60%</span>
       </div>
       <div class="score-factor">
-        <span class="score-factor-name">Contribution % of Levies</span>
-        <span class="score-weight">25%</span>
+        <span class="score-factor-name">Annual Contribution Coverage</span>
+        <span class="score-weight">40%</span>
       </div>
-      <div class="score-factor">
-        <span class="score-factor-name">Scheme Age</span>
-        <span class="score-weight">20%</span>
-      </div>
-      <div class="score-factor">
-        <span class="score-factor-name">Maintenance Spend Trend</span>
-        <span class="score-weight">15%</span>
-      </div>
-      <div class="score-factor">
-        <span class="score-factor-name">Auditor Comment</span>
-        <span class="score-weight">10%</span>
+      <div class="score-factor" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:0.5rem;padding-top:0.8rem;">
+        <span class="score-factor-name" style="font-size:0.78rem;color:rgba(255,255,255,0.4);font-style:italic;">Age implicit in adequacy multiplier</span>
+        <span></span>
       </div>
     </div>
     <div class="score-card">
@@ -715,7 +657,7 @@
         <span class="score-weight">25%</span>
       </div>
       <div class="score-factor">
-        <span class="score-factor-name">Levy Collection Efficiency</span>
+        <span class="score-factor-name">Levy Collection (months outstanding)</span>
         <span class="score-weight">25%</span>
       </div>
       <div class="score-factor">
@@ -906,7 +848,7 @@
         <p>Free awareness session on PMR 22 obligations and personal liability exposure.</p>
       </div>
     </div>
-    <a href="mailto:info@strategis.co.za" class="btn-primary" style="font-size:1rem;padding:1rem 2.5rem;">Contact SchemeGuard</a>
+    <a href="mailto:info@zatisvy.com" class="btn-primary" style="font-size:1rem;padding:1rem 2.5rem;">Contact SchemeGuard</a>
   </div>
 </section>
 
@@ -914,11 +856,10 @@
 <footer>
   <div class="brand">Scheme<span>Guard</span></div>
   <p>A Zatisvy (Pty) Ltd product · schemeguard.co.za · KwaZulu-Natal, South Africa</p>
-  <p style="font-size:0.75rem;color:rgba(255,255,255,0.2)">© 2026 Zatisvy (Pty) Ltd &nbsp;·&nbsp; <a href="https://strategis2-my.sharepoint.com/:b:/g/personal/trevorh_zatisvy_com/IQAXj-2d1BZ6Tq5-04u30CV1AfCS9-ETTZExTHY1SA3RkV0?e=krHTqy" target="_blank" style="color:rgba(255,255,255,0.4);text-decoration:none;">Privacy Statement</a></p>
+  <p style="font-size:0.75rem;color:rgba(255,255,255,0.2)">© 2026 Zatisvy (Pty) Ltd &nbsp;·&nbsp; <a href="https://strategis2-my.sharepoint.com/:b:/g/personal/trevorh_zatisvy_com/IQAXj-2d1BZ6Tq5-04u30CV1AfCS9-ETTZExTHY1SA3RkV0?e=krHTqy" target="_blank" style="color:rgba(255,255,255,0.4);text-decoration:none;">Privacy Statement</a> &nbsp;·&nbsp; <a href="/support.html" style="color:rgba(255,255,255,0.4);text-decoration:none;">Support</a></p>
 </footer>
 
 <script>
-  // Scroll reveal
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((e, i) => {
